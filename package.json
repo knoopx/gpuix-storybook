@@ -1,0 +1,30 @@
+{
+  "name": "storybook",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "bin": {
+    "storybook": "./src/cli.ts"
+  },
+  "scripts": {
+    "dev": "bun --hot src/dev.ts",
+    "vitest": "vitest",
+    "test": "bun vitest run"
+  },
+  "dependencies": {
+    "@gpuix/native": "file:../../knoopx/gpuix/packages/native",
+    "@gpuix/react": "0.10.0",
+    "adwaita-gpuix": "workspace:*",
+    "react": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.3",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.0",
+    "vitest": "4.1.12"
+  }
+}
