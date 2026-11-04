@@ -11,6 +11,7 @@ import {
   ToastProvider,
   useToast,
 } from "adwaita-gpuix";
+import type { SemanticColors } from "adwaita-gpuix";
 import type { DecoratorFunction, Args } from "../csf.ts";
 import type { StoryDef } from "../index.ts";
 import {
@@ -63,7 +64,7 @@ function copyErrorMessage(err: unknown): string {
 }
 
 function BrowserLayout({
-  colors,
+  palette,
   search,
   setSearch,
   onCopy,
@@ -78,7 +79,7 @@ function BrowserLayout({
   changeArg,
   previewDecorators,
 }: {
-  colors: ReturnType<typeof useAdwaita>["colors"];
+  palette: SemanticColors;
   search: string;
   setSearch: (s: string) => void;
   onCopy: () => void;
@@ -100,7 +101,7 @@ function BrowserLayout({
         flexDirection: "column",
         width: "100%",
         height: "100%",
-        backgroundColor: colors.window_bg,
+        backgroundColor: palette.surface.window,
       }}
     >
       <HeaderBar search={search} setSearch={setSearch} onCopy={onCopy} />
@@ -164,7 +165,7 @@ export function BrowserApp({
 
   const groups = useMemo(() => buildGroups(stories), [stories]);
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set());
-  const { colors } = useAdwaita();
+  const { color } = useAdwaita();
   const selected = useMemo(
     () => stories.find((s) => storyKey(s) === selectedId) ?? null,
     [stories, selectedId],
@@ -211,7 +212,7 @@ export function BrowserApp({
 
   return (
     <BrowserLayout
-      colors={colors}
+      palette={color}
       search={search}
       setSearch={setSearch}
       onCopy={handleCopy}

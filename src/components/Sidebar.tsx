@@ -12,7 +12,7 @@ const itemKey = (it: ItemGroup) => `itm:${it.title}`;
 
 function ChevronSlot({ open, dim }: { open?: boolean; dim: boolean }) {
   const t = useAdwaita();
-  const { colors } = t;
+  const { color } = t;
   return (
     <div
       style={{
@@ -26,7 +26,7 @@ function ChevronSlot({ open, dim }: { open?: boolean; dim: boolean }) {
         <Icon
           name={open ? "chevronDown" : "chevronRight"}
           size={13}
-          color={colors.dim_fg}
+          color={color.text.dim}
         />
       )}
     </div>
@@ -45,7 +45,7 @@ function FolderRow({
   paddingLeft: number;
 }) {
   const t = useAdwaita();
-  const { colors } = t;
+  const { color } = t;
   return (
     <div
       onClick={onToggle}
@@ -61,8 +61,13 @@ function FolderRow({
       }}
     >
       <ChevronSlot open={open} dim={false} />
-      <Icon name="folder" size={15} color={colors.fg} />
-      <T size="body" weight={600} color={colors.fg} style={{ flexShrink: 0 }}>
+      <Icon name="folder" size={15} color={color.text.primary} />
+      <T
+        size="body"
+        weight={600}
+        color={color.text.primary}
+        style={{ flexShrink: 0 }}
+      >
         {label}
       </T>
     </div>
@@ -83,7 +88,7 @@ function ItemRow({
   paddingLeft: number;
 }) {
   const t = useAdwaita();
-  const { colors } = t;
+  const { color } = t;
   return (
     <div
       onClick={collapsible ? onToggle : undefined}
@@ -103,8 +108,8 @@ function ItemRow({
       ) : (
         <ChevronSlot dim />
       )}
-      <Icon name="fileText" size={14} color={colors.dim_fg} />
-      <T size="body" color={colors.fg} style={{ flexShrink: 0 }}>
+      <Icon name="fileText" size={14} color={color.text.dim} />
+      <T size="body" color={color.text.primary} style={{ flexShrink: 0 }}>
         {label}
       </T>
     </div>
@@ -113,7 +118,7 @@ function ItemRow({
 
 function EmptyState({ filtered }: { filtered: boolean }) {
   const t = useAdwaita();
-  const { colors } = t;
+  const { color } = t;
   return (
     <div
       style={{
@@ -129,12 +134,10 @@ function EmptyState({ filtered }: { filtered: boolean }) {
       <Icon
         name={filtered ? "search" : "inbox"}
         size={22}
-        color={colors.dim_fg}
+        color={color.text.dim}
       />
-      <T size="caption" color={colors.dim_fg} style={{ textAlign: "center" }}>
-        {filtered
-          ? "No stories match your filter"
-          : "Library is empty"}
+      <T size="caption" color={color.text.dim} style={{ textAlign: "center" }}>
+        {filtered ? "No stories match your filter" : "Library is empty"}
       </T>
     </div>
   );
@@ -152,7 +155,7 @@ function StoryRow({
   paddingLeft: number;
 }) {
   const t = useAdwaita();
-  const { colors, radii } = t;
+  const { color, radius } = t;
   return (
     <div
       onClick={onSelect}
@@ -166,8 +169,8 @@ function StoryRow({
         marginRight: 8,
         paddingLeft,
         paddingRight: 12,
-        borderRadius: radii.row,
-        backgroundColor: selected ? colors.accent : "transparent",
+        borderRadius: radius.xs,
+        backgroundColor: selected ? color.accent.base : "transparent",
         cursor: "pointer",
       }}
     >
@@ -175,11 +178,11 @@ function StoryRow({
       <Icon
         name="bookmark"
         size={14}
-        color={selected ? colors.accent_fg : colors.dim_fg}
+        color={selected ? color.accent.fg : color.text.dim}
       />
       <T
         size="body"
-        color={selected ? colors.accent_fg : colors.fg}
+        color={selected ? color.accent.fg : color.text.primary}
         style={{ flexShrink: 0 }}
       >
         {label}
@@ -207,7 +210,7 @@ export function Sidebar({
   width?: number | string;
 }) {
   const t = useAdwaita();
-  const { colors } = t;
+  const { color } = t;
 
   const storyRow = (s: StoryDef, paddingLeft: number) => (
     <StoryRow
@@ -268,9 +271,9 @@ export function Sidebar({
         flexShrink: 0,
         display: "flex",
         flexDirection: "column",
-        backgroundColor: colors.sidebar_bg,
+        backgroundColor: color.surface.sidebar,
         borderRightWidth: 1,
-        borderColor: colors.border,
+        borderColor: color.border.default,
       }}
     >
       {}
@@ -286,7 +289,7 @@ export function Sidebar({
           height: 30,
         }}
       >
-        <T size="caption" weight={700} color={colors.dim_fg}>
+        <T size="caption" weight={700} color={color.text.dim}>
           LIBRARY
         </T>
       </div>
