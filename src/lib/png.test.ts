@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { existsSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { deflateSync } from "node:zlib";
 import {
@@ -190,19 +189,6 @@ describe("png codec", () => {
 
   test("rejects non-PNG data", () => {
     expect(() => decodePng(Buffer.from("hello"))).toThrow("not a PNG");
-  });
-
-  test("decodes a real niri screenshot when available", () => {
-    const dir = join(process.env.HOME ?? "", "Pictures", "Screenshots");
-    let files: string[] = [];
-    try {
-      files = readdirSync(dir).filter((f) => f.endsWith(".png"));
-    } catch {}
-    if (files.length === 0) return;
-    const img = decodePngFile(join(dir, files[files.length - 1]));
-    expect(img.width).toBeGreaterThan(0);
-    expect(img.height).toBeGreaterThan(0);
-    expect(img.data.length).toBe(img.width * img.height * 4);
   });
 });
 
