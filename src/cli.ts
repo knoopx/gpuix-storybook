@@ -118,6 +118,10 @@ async function renderOne(
   if (!story)
     fail(`  ✗ ${title} > ${name}: story not found in ${storyFileRel}`);
   const previewDecorators = await loadPreviewDecorators(previewModule);
+  story.parameters = {
+    ...(await loadPreviewParameters(previewModule)),
+    ...story.parameters,
+  };
   const { out, error } = await renderWithRetry(
     story,
     projectRoot,
@@ -142,6 +146,14 @@ async function runOne(args: string[]): Promise<void> {
     title,
     name,
     previewModule,
+  );
+  process.exit(0);
+}
+
+function printUsage(): never {
+  console.log(
+    "usage: storybook [projectRoot] [--only <term>] [--dry-run] [--browser]\n" +
+      "  captures keep the declared window width and fit their height to what is painted",
   );
   process.exit(0);
 }
@@ -205,17 +217,19 @@ function parseCliOptions(args: string[]): {
   only?: string;
   dryRun: boolean;
   browser: boolean;
+  help: boolean;
 } {
   const { positional, flags } = parseArgs(
     args,
     ["--only"],
-    ["--dry-run", "--browser"],
+    ["--dry-run", "--browser", "--help"],
   );
   return {
     projectRoot: resolve(positional[0] ?? process.cwd()),
     only: (flags["--only"] as string | undefined) ?? process.env.STORYBOOK_ONLY,
     dryRun: flags["--dry-run"] === true,
     browser: flags["--browser"] === true,
+    help: flags["--help"] === true,
   };
 }
 
@@ -246,7 +260,9 @@ async function main(): Promise<void> {
     return;
   }
 
-  const { projectRoot, only, dryRun, browser } = parseCliOptions(args);
+  const { projectRoot, only, dryRun, browser, help } = parseCliOptions(args);
+
+  if (help) printUsage();
 
   if (browser) {
     await runBrowser(projectRoot);
