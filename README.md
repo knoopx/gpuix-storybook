@@ -101,53 +101,147 @@ bun run vitest        # vitest in watch mode
 
 ## Writing stories
 
-A story module exports a `Meta` as `default` plus named stories:
+A story module exports a `Meta` as `default` plus named story exports. Every
+file starts with the same meta shape — a `title` (`"Group/Component"`), the
+`component` under test, and `parameters` holding the **default capture
+canvas** for the component. The snippets below use a stand-in `Chip` so they
+stay illustrative; a real module is
+`adwaita-gpuix/src/components/Button.stories.tsx`:
 
 ```tsx
 import { defineMeta, defineStory } from "storybook";
-import { Button, type ButtonProps } from "adwaita-gpuix";
+import { Labeled } from "./common";
+import { Column } from "./Box";
+import { Chip } from "./Chip";
 
 export default defineMeta({
-  title: "Adwaita/Button",
-  component: Button,
-  parameters: { width: 620, height: 420 },
-  args: { label: "Hello" }, // component-level baseline for the controls panel
-  argTypes: {
-    variant: { options: ["default", "suggested", "destructive"] },
-  },
-});
-
-// Overview: every variant/state at once (the visual-regression surface).
-export function Overview() {
-  return (
-    <>
-      <Button label="Default" />
-      <Button label="Suggested" variant="suggested" />
-      <Button label="Destructive" variant="destructive" />
-    </>
-  );
-}
-
-// Per-story args override only what differs from the meta baseline.
-export const Playground = defineStory<Pick<ButtonProps, "label" | "disabled">>({
-  args: { label: "Click me", disabled: false },
+  title: "Adwaita/Chip", // "Group/Component" — also the PNG path
+  component: Chip,
+  parameters: { width: 360, height: 180 }, // default canvas for the component
 });
 ```
 
-Notes:
+### Pure stories — `defineStory` objects
 
-- Stories can be **functions** (render fn) or **objects**
-  (`defineStory` / plain `StoryObj` with `args`, `render`, `parameters`,
-  `decorators`).
-- Story exports are **UpperCamelCase**; the export name becomes the sidebar
-  entry and the PNG filename.
-- `parameters.width`, `parameters.height`, `parameters.settleMs` control the
-  capture canvas size and the time the renderer is advanced before the
-  screenshot (use for async/animated content).
-- `argTypes` `options`/`control` drive the args controls in the browser app's
-  property panel.
-- Preview decorators come from `.storybook/main.tsx`, e.g.
-  the `AdwaitaProvider` wrapper.
+A story whose body just renders components (no top-level hook) is a
+`defineStory` object:
+
+```tsx
+export const kinds = defineStory({
+  render: () => (
+    <Column gap={12} align="center">
+      <Labeled caption="resting">
+        <Chip label="Draft" />
+      </Labeled>
+      <Labeled caption="selected">
+        <Chip label="Merged" selected />
+      </Labeled>
+    </Column>
+  ),
+});
+```
+
+`parameters` is included **only when the canvas differs from the meta
+default** — omit it otherwise and the story inherits
+`meta.parameters.width`/`height`.
+
+### Themed stories — function exports
+
+A story that calls `useAdwaita()` at the top level for inline styles must be
+a **function export** (see the hook constraint below). Attach `parameters`
+to the export when the canvas differs from the meta default:
+
+```tsx
+export function statusDots() {
+  const t = useAdwaita();
+  return (
+    <Row gap={16} align="start">
+      <Labeled caption="success">
+        <div
+          style={{
+            width: 12,
+            height: 12,
+            borderRadius: 6,
+            backgroundColor: t.colors.success,
+          }}
+        />
+      </Labeled>
+      <Labeled caption="destructive">
+        <div
+          style={{
+            width: 12,
+            height: 12,
+            borderRadius: 6,
+            backgroundColor: t.colors.destructive,
+          }}
+        />
+      </Labeled>
+    </Row>
+  );
+}
+statusDots.parameters = { width: 528, height: 120 };
+```
+
+Interactive stories using `useState` are function exports the same way.
+
+### The hook constraint
+
+An object story's `render` is **invoked directly** as a plain function — the
+framework calls `render(args, context)` while building the element tree; it
+does not mount it as a React component. A top-level `useAdwaita()` /
+`useState` inside such a `render` is therefore an invalid hook call and
+breaks the story. Function exports, by contrast, are mounted as real
+components, so hooks work at the top level of the function body.
+
+Rule of thumb:
+
+- body just renders components → `defineStory` object;
+- top-level `useAdwaita()` (themed inline styles) → function export;
+- `useState` (interactive demo) → function export.
+
+### Layout: `Row` / `Column`, not hand-rolled flex
+
+Row/column layout uses the library's `Row` / `Column` components (from the
+app's `Box` module) — do **not** hand-roll
+`<div style={{ display: "flex", ... }}>` wrappers. The mapping from raw
+flexbox:
+
+| Raw flexbox                | `Row` / `Column` prop |
+| -------------------------- | --------------------- |
+| `alignItems: "flex-start"` | `align="start"`       |
+| `alignItems: "center"`     | `align="center"`      |
+| `alignItems: "flex-end"`   | `align="end"`         |
+| (omitted = stretch)        | omit `align`          |
+| `justifyContent: …`        | `justify="…"`         |
+
+Keep a raw `<div>` only for a **functional box** — one that paints a
+background/border, is `position: "relative"`, or carries a click handler.
+
+### Captions: the shared `Labeled` helper
+
+Caption+content cells use the shared `Labeled` helper (from the app's
+`common` module) — never redefine it per file:
+
+```tsx
+<Labeled caption="sm (28)">
+  <Button size="sm" label="Save" />
+</Labeled>
+```
+
+### Notes
+
+- Story export names are **stable** — the export name becomes the sidebar
+  entry and the PNG filename (`<story dir>/<Title>/<name>.png`); don't
+  rename stories casually.
+- Story **data** that drives the component belongs in `args` (meta-level
+  baseline, per-story overrides for what differs); **layout/showcase
+  structure** belongs in the `render` body.
+- `parameters.settleMs` advances the renderer before capture — use it for
+  async/animated content.
+- `argTypes` `options`/`control` drive the args controls in the browser
+  app's property panel.
+- Preview decorators come from `.storybook/main.tsx`, e.g. the
+  `AdwaitaProvider` wrapper.
 
 ## Best Practices
 
@@ -160,7 +254,7 @@ section.
 ### File layout
 
 - One story file per component: `ComponentName.stories.tsx` directly next
-to `ComponentName.tsx` (no separate `stories/` tree).
+  to `ComponentName.tsx` (no separate `stories/` tree).
 - Component stories live in `src/components/`, app/screen stories in
   `src/screens/`.
 
@@ -174,38 +268,59 @@ to `ComponentName.tsx` (no separate `stories/` tree).
 
 ### Story exports
 
-- Name story exports in **UpperCamelCase** (`Overview`, `Default`, `Empty`);
-  the export name becomes the sidebar entry and the PNG filename.
-- Every component file starts with an **`Overview`** story that renders
-  every variant/state at once — it doubles as the quick visual-regression
-  surface for the PNG capture.
-- Document edge cases as their own stories: `Empty`, `Error`, `Loading`.
-- Function stories (plain `export function`, no `defineStory`) may carry
-  local state (`useState`) for interactive demos in the browser app.
+- Name story exports in **lowerCamelCase** (`variants`, `sizes`, `empty`,
+  `photoBadge`); the export name becomes the sidebar entry and the PNG
+  filename.
+- **Keep export names stable** — they are the PNG filenames and sidebar
+  entries, so renaming a story orphans its previous captures.
+- Start each component file with the primary showcase story (e.g.
+  `variants` / `showcase`), then document edge cases as their own stories:
+  `empty`, `disabled`, `loading`.
+- A story is a **`defineStory` object** when its body just renders
+  components; a **function export** when it calls `useAdwaita()` at the top
+  level (themed inline styles) or uses `useState` (interactive) — see the
+  hook constraint in _Writing stories_.
+
+### Layout & captions
+
+- Row/column layout comes from the `Row` / `Column` components (the app's
+  `Box` module) — never hand-roll
+  `<div style={{ display: "flex", ... }}>` wrappers. Map
+  `alignItems: "flex-start" → align="start"`, `"center" → "center"`,
+  `"flex-end" → "end"`; omit `align` for stretch; `justifyContent` →
+  `justify`.
+- Keep a raw `<div>` only for a functional box (paints a background/border,
+  is `position: "relative"`, or has a click handler).
+- Caption+content cells use the shared `Labeled` helper (the app's `common`
+  module) — never redefine it per file.
 
 ### Args
 
-- Give `meta` a meaningful component-level `args` baseline so the controls
-  panel starts from a working state.
-- Per-story `args` override only what differs; compose from the baseline
-  (`args: { ...base, label: "…" }`) rather than repeating it.
+- Story data that drives the component belongs in `args`: a meaningful
+  meta-level `args` baseline so the controls panel starts from a working
+  state, with per-story `args` overriding only what differs (compose from
+  the baseline rather than repeating it).
+- Layout/showcase structure belongs in the `render` body, not in `args`.
 
 ### Controls
 
 `argTypes` `options`/`control` drive the args controls in the browser
 app's property panel:
 
-| `control` | Use for                        |
-| --------- | ------------------------------ |
-| `select`  | enums with many options       |
-| `radio`   | enums with 2–4 options        |
-| `boolean` | true/false toggles            |
-| `text`    | string inputs                 |
-| `number`  | numeric values                |
+| `control` | Use for                 |
+| --------- | ----------------------- |
+| `select`  | enums with many options |
+| `radio`   | enums with 2–4 options  |
+| `boolean` | true/false toggles      |
+| `text`    | string inputs           |
+| `number`  | numeric values          |
 
 ### Parameters
 
-- `parameters.width`/`height` (meta or story) set the capture canvas size.
+- `meta.parameters.width`/`height` set the component's **default** capture
+  canvas; a story's `parameters` override them only when the canvas differs
+  (object stories via the `defineStory` field, function exports via
+  `<name>.parameters`).
 - `parameters.settleMs` advances the renderer before the screenshot; use it
   for async/animated content that must settle first.
 
