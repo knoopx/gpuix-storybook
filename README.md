@@ -28,6 +28,35 @@ cd gpuix-apps
 bun install
 ```
 
+### Capture requires a test-support build of `@gpuix/native`
+
+PNG capture renders through `@gpuix/native/testing` (`TestGpuixRenderer`),
+which exists only in a build with the `test-support` feature. The npm Linux
+artifacts (`@gpuix/native-linux-x64-gnu`) are built `--no-default-features`, so
+they ship a stub and `hasTestGpuixRenderer()` is false; on Linux this package
+therefore pins `@gpuix/native` to the local `file:../../knoopx/gpuix/packages/native`
+build, which carries the real Linux test renderer.
+
+That build's ELF RUNPATH names nix-store lib dirs from its build environment.
+When those exact paths are GC'd, `libfontconfig.so.1` / `libfreetype.so.6` stop
+resolving, the binding's `dlopen` fails, and the napi loader silently falls back
+to the npm stub — every story then dies with "TestGpuixRenderer is macOS and
+Windows only", which reads like a platform limit but is a missing library.
+
+`src/lib/gpuix-libs.ts` fixes that at CLI start (`fixNativeLoader` in
+`src/cli.ts`): it reads the bindings' own RUNPATH, finds the NEEDED libs that do
+not resolve, re-resolves them from the store (the package named by a RUNPATH
+entry first, else the newest store package of that name), appends those `lib`
+dirs to the **existing** `LD_LIBRARY_PATH`, and re-execs the CLI once so the
+change is visible to the dynamic loader (`LD_LIBRARY_PATH` is read at exec time,
+so setting it in a running process cannot fix that process's own `dlopen`).
+`GPUIX_LIBS_RESOLVED=1` marks the re-exec so children inherit the fix and do not
+exec again. Nothing is a hardcoded store path.
+
+When no test-support binding is loaded, the CLI says so once — bindings
+inspected, dirs appended, unresolved libs, the resulting `LD_LIBRARY_PATH` —
+instead of failing every story with the stub's message.
+
 ## Usage
 
 ### Dev browser (interactive)
