@@ -219,6 +219,24 @@ function parseCliOptions(args: string[]): {
   };
 }
 
+async function requireTestRenderer(): Promise<void> {
+  const { hasNativeTestRenderer } = await import("@gpuix/native/testing");
+  if (hasNativeTestRenderer) return;
+  console.error(
+    "storybook: no test-support build of @gpuix/native is loaded, so PNG capture is unavailable.",
+  );
+  console.error(
+    `  this package pins @gpuix/native to file:../../knoopx/gpuix/packages/native; its Linux
+  binding needs a test-support feature build, and its RUNPATH libs must resolve
+  (the loader silently falls back to the npm stub when they do not).
+  bindings inspected: ${loaderPlan.bindings.length}
+  lib dirs appended: ${loaderPlan.appended.length}
+  unresolved NEEDED libs: ${loaderPlan.unresolved.join(", ") || "<none>"}
+  LD_LIBRARY_PATH: ${process.env.LD_LIBRARY_PATH ?? "<unset>"}`,
+  );
+  process.exit(1);
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   fixNativeLoader();
@@ -238,6 +256,7 @@ async function main(): Promise<void> {
   const { discover } = await discoverModule();
   const stories = await discover(projectRoot);
   if (dryRun) printDiscovered(stories, projectRoot);
+  await requireTestRenderer();
   await renderAll(projectRoot, stories, only);
 }
 
