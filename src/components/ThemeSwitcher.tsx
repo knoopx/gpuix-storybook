@@ -26,7 +26,7 @@ const ACCENT_ITEMS: { value: string; text: string; color?: string }[] = [
 ];
 
 function Swatch({ color }: { color?: string }) {
-  const { colors } = useAdwaita();
+  const { color: palette } = useAdwaita();
   return (
     <div
       style={{
@@ -36,14 +36,14 @@ function Swatch({ color }: { color?: string }) {
         flexShrink: 0,
         backgroundColor: color ?? "transparent",
         borderWidth: color ? 0 : 1,
-        borderColor: colors.border,
+        borderColor: palette.border.default,
       }}
     />
   );
 }
 
 function AccentLabel({ text, color }: { text: string; color?: string }) {
-  const { colors } = useAdwaita();
+  const { color: palette } = useAdwaita();
   return (
     <div
       style={{
@@ -54,7 +54,7 @@ function AccentLabel({ text, color }: { text: string; color?: string }) {
       }}
     >
       <Swatch color={color} />
-      <T size="body" color={colors.fg}>
+      <T size="body" color={palette.text.primary}>
         {text}
       </T>
     </div>
@@ -70,7 +70,7 @@ function AccentItem({
   text: string;
   color?: string;
 }) {
-  const { colors } = useAdwaita();
+  const { color: palette } = useAdwaita();
   return (
     <SelectItemPrimitive
       value={value}
@@ -83,7 +83,7 @@ function AccentItem({
         padding: 8,
         cursor: "pointer",
         backgroundColor:
-          selected || highlighted ? colors.accentTint : "transparent",
+          selected || highlighted ? palette.accent.tint : "transparent",
       })}
     >
       {({ selected }) => (
@@ -98,12 +98,12 @@ function AccentItem({
             }}
           >
             <Swatch color={color} />
-            <T size="body" color={colors.fg}>
+            <T size="body" color={palette.text.primary}>
               {text}
             </T>
           </div>
           {selected ? (
-            <Icon name="success" size={12} color={colors.accent} />
+            <Icon name="success" size={12} color={palette.accent.base} />
           ) : null}
         </>
       )}

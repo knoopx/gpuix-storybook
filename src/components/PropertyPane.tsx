@@ -191,9 +191,9 @@ function StringProperty({
 }
 
 function StaticPreview({ value }: { value: unknown }) {
-  const { colors } = useAdwaita();
+  const { color } = useAdwaita();
   return (
-    <T size="caption" color={colors.dim_fg} style={{ flexShrink: 0 }}>
+    <T size="caption" color={color.text.dim} style={{ flexShrink: 0 }}>
       {previewValue(value)}
     </T>
   );
@@ -212,7 +212,7 @@ function ArgRow({
   isLast: boolean;
   onChange: (key: string, value: unknown) => void;
 }) {
-  const { colors } = useAdwaita();
+  const { color } = useAdwaita();
   return (
     <div
       style={{
@@ -224,10 +224,14 @@ function ArgRow({
         paddingLeft: 16,
         paddingRight: 16,
         borderBottomWidth: isLast ? 0 : 1,
-        borderColor: colors.border,
+        borderColor: color.border.default,
       }}
     >
-      <T size="body" color={colors.fg} style={{ width: 220, flexShrink: 0 }}>
+      <T
+        size="body"
+        color={color.text.primary}
+        style={{ width: 220, flexShrink: 0 }}
+      >
         {name}
       </T>
       <div
@@ -252,7 +256,7 @@ function ArgRow({
 }
 
 function ArgsEmptyState({ hasDef }: { hasDef: boolean }) {
-  const { colors } = useAdwaita();
+  const { color } = useAdwaita();
   return (
     <div
       style={{
@@ -262,7 +266,7 @@ function ArgsEmptyState({ hasDef }: { hasDef: boolean }) {
         justifyContent: "center",
       }}
     >
-      <T size="body" color={colors.dim_fg}>
+      <T size="body" color={color.text.dim}>
         {hasDef
           ? "This story has no args"
           : "Select a story to see its properties"}
@@ -280,14 +284,14 @@ export function PropertyPane({
   args: Args;
   onChangeArg: (key: string, value: unknown) => void;
 }) {
-  const { colors } = useAdwaita();
+  const { color } = useAdwaita();
   const [collapsed, setCollapsed] = useState(false);
 
   const argEntries = def ? Object.entries(args) : [];
   const argTypes: Record<string, InputType> = def
     ? (((def as StoryDef).context?.argTypes ??
-      (def as StoryObj).argTypes ??
-      {}) as Record<string, InputType>)
+        (def as StoryObj).argTypes ??
+        {}) as Record<string, InputType>)
     : {};
 
   return (
@@ -297,9 +301,9 @@ export function PropertyPane({
         flexShrink: 0,
         display: "flex",
         flexDirection: "column",
-        backgroundColor: colors.headerbar_bg,
+        backgroundColor: color.surface.headerbar,
         borderTopWidth: 1,
-        borderColor: colors.border,
+        borderColor: color.border.default,
       }}
     >
       <div
@@ -313,13 +317,13 @@ export function PropertyPane({
           paddingLeft: 16,
           paddingRight: 16,
           borderBottomWidth: 1,
-          borderColor: colors.border,
+          borderColor: color.border.default,
         }}
       >
         <T
           size="caption"
           weight={700}
-          color={colors.dim_fg}
+          color={color.text.dim}
           style={{ width: 220, flexShrink: 0 }}
         >
           Property
@@ -327,7 +331,7 @@ export function PropertyPane({
         <T
           size="caption"
           weight={700}
-          color={colors.dim_fg}
+          color={color.text.dim}
           style={{ flexGrow: 1, flexShrink: 1 }}
         >
           Value

@@ -27,7 +27,9 @@ function RenderError({ error }: { error: unknown }) {
       <T size="body" weight={700} color="#e5484d">
         Story failed to render
       </T>
-      <T size="caption" color="#9a9a9a">{message}</T>
+      <T size="caption" color="#9a9a9a">
+        {message}
+      </T>
     </div>
   );
 }
@@ -60,7 +62,7 @@ function StoryAdapter({
 }
 
 function CenterPanel({ children }: { children: ReactNode }) {
-  const { colors } = useAdwaita();
+  const { color } = useAdwaita();
   return (
     <div
       style={{
@@ -68,7 +70,7 @@ function CenterPanel({ children }: { children: ReactNode }) {
         flexShrink: 1,
         minHeight: 0,
         minWidth: 0,
-        backgroundColor: colors.view_bg,
+        backgroundColor: color.surface.view,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -189,10 +191,10 @@ class CanvasErrorBoundary extends Component<
 }
 
 function EmptyCanvas() {
-  const { colors } = useAdwaita();
+  const { color } = useAdwaita();
   return (
     <CenterPanel>
-      <T size="body" color={colors.dim_fg}>
+      <T size="body" color={color.text.dim}>
         Select a story to begin
       </T>
     </CenterPanel>

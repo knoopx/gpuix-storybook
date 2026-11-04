@@ -46,7 +46,7 @@ export function HeaderBar({
   onCopy?: () => void;
 }) {
   const t = useAdwaita();
-  const { colors } = t;
+  const { color } = t;
   return (
     <div
       style={{
@@ -58,15 +58,15 @@ export function HeaderBar({
         gap: 8,
         paddingLeft: 12,
         paddingRight: 12,
-        backgroundColor: colors.headerbar_bg,
+        backgroundColor: color.surface.headerbar,
         borderBottomWidth: 1,
-        borderColor: colors.border,
+        borderColor: color.border.default,
       }}
     >
       <div style={{ width: SIDEBAR_W - 24, flexShrink: 0 }}>
         <InputGroup>
           <InputGroupAddon style={{ paddingLeft: 12 }}>
-            <Icon name="search" size={12} color={colors.dim_fg} />
+            <Icon name="search" size={12} color={color.text.dim} />
           </InputGroupAddon>
           <InputGroupInput
             value={search}
@@ -78,7 +78,7 @@ export function HeaderBar({
       </div>
       <div style={{ flexGrow: 1, flexShrink: 1 }} />
       <ThemeSwitcher />
-      <ToolBtn name="copy" color={colors.dim_fg} onClick={onCopy} />
+      <ToolBtn name="copy" color={color.text.dim} onClick={onCopy} />
     </div>
   );
 }
