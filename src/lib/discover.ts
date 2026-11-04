@@ -23,9 +23,16 @@ export type { StoryModule };
 const normalize = <T>(v: T[] | T | undefined): T[] =>
   v == null ? [] : Array.isArray(v) ? v : [v];
 
+const SKIP_DIRS = new Set(["node_modules", "dist", "build", "target", "out"]);
+
+function isSkipped(name: string): boolean {
+  return name.startsWith(".") || SKIP_DIRS.has(name);
+}
+
 function visitEntry(dir: string, e: Dirent, out: string[]): void {
   const p = join(dir, e.name);
   if (e.isDirectory()) {
+    if (isSkipped(e.name)) return;
     walkTsx(p, out);
     return;
   }
@@ -267,7 +274,7 @@ async function discoverFile(
 }
 
 export async function discover(projectRoot: string): Promise<StoryDef[]> {
-  const files = walkTsx(join(projectRoot, "src"));
+  const files = walkTsx(projectRoot);
   const stories: StoryDef[] = [];
   for (const file of files)
     stories.push(...(await discoverFile(file, projectRoot)));
@@ -285,6 +292,17 @@ export async function loadPreviewDecorators(
   if (!existsSync(previewModule)) return [];
   const mod = (await import(previewModule)) as { decorators?: unknown };
   return filterDecorators(mod.decorators);
+}
+
+export async function loadPreviewParameters(
+  previewModule: string,
+): Promise<Parameters> {
+  if (!existsSync(previewModule)) return {};
+  const mod = (await import(previewModule)) as { parameters?: unknown };
+  const parameters = mod.parameters;
+  return parameters && typeof parameters === "object"
+    ? (parameters as Parameters)
+    : {};
 }
 
 export function resolvePreviewModule(projectRoot: string): string {
