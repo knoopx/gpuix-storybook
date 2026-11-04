@@ -15,6 +15,7 @@ import type {
 } from "./csf.ts";
 
 export * from "./csf.ts";
+export { mulberry32 } from "./lib/util.ts";
 
 export interface StoryDef {
   name: string;
