@@ -3,15 +3,44 @@ import { statSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { renderWithRetry, sleep, type StoryDef } from "./index.ts";
 import {
-  buildStoryDefs,
-  discover,
-  filterStories,
-  loadPreviewDecorators,
-  resolvePreviewModule,
-  type StoryModule,
-} from "./lib/discover.ts";
+  RESOLVED_GUARD,
+  bootstrapGpuixLibs,
+  type LibResolution,
+} from "./lib/gpuix-libs.ts";
+import type { StoryDef } from "./index.ts";
+import type * as Discover from "./lib/discover.ts";
+
+const cliPath = fileURLToPath(import.meta.url);
+const packageRoot = resolve(cliPath, "../..");
+
+let loaderPlan: LibResolution = { appended: [], unresolved: [], bindings: [] };
+
+function fixNativeLoader(): void {
+  const alreadyFixed = process.env[RESOLVED_GUARD] === "1";
+  loaderPlan = bootstrapGpuixLibs([resolve(packageRoot, "..")], (line) =>
+    console.log(line),
+  );
+  if (loaderPlan.appended.length === 0 || alreadyFixed) return;
+
+  const status = spawnSync(
+    process.execPath,
+    [cliPath, ...process.argv.slice(2)],
+    {
+      stdio: "inherit",
+      env: process.env,
+    },
+  ).status;
+  process.exit(status ?? 0);
+}
+
+async function renderModule(): Promise<typeof import("./index.ts")> {
+  return import("./index.ts");
+}
+
+async function discoverModule(): Promise<typeof import("./lib/discover.ts")> {
+  return import("./lib/discover.ts");
+}
 
 function parseArg(
   a: string,
@@ -72,10 +101,13 @@ async function renderOne(
   name: string,
   previewModule: string,
 ): Promise<void> {
+  const { buildStoryDefs, loadPreviewDecorators, loadPreviewParameters } =
+    await discoverModule();
+  const { renderWithRetry } = await renderModule();
   const file = join(projectRoot, storyFileRel);
-  let mod: StoryModule;
+  let mod: Discover.StoryModule;
   try {
-    mod = (await import(file)) as StoryModule;
+    mod = (await import(file)) as Discover.StoryModule;
   } catch (e) {
     fail(
       `  ✗ ${title} > ${name}: failed to import ${storyFileRel}: ${errMsg(e)}`,
@@ -128,10 +160,9 @@ async function renderOneStory(
   projectRoot: string,
   previewModule: string,
 ): Promise<boolean> {
-  const cliPath = fileURLToPath(import.meta.url);
   const node = process.execPath;
+  const { sleep } = await renderModule();
   for (let attempt = 0; attempt < 2; attempt++) {
-    if (attempt > 0) await sleep(500);
     const code = spawnSync(
       node,
       [
@@ -155,6 +186,7 @@ async function renderAll(
   stories: StoryDef[],
   only: string | undefined,
 ): Promise<void> {
+  const { filterStories, resolvePreviewModule } = await discoverModule();
   const previewModule = resolvePreviewModule(projectRoot);
 
   let ok = 0;
@@ -189,6 +221,7 @@ function parseCliOptions(args: string[]): {
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+  fixNativeLoader();
 
   if (args[0] === "--one") {
     await runOne(args.slice(1));
@@ -202,6 +235,7 @@ async function main(): Promise<void> {
     return;
   }
 
+  const { discover } = await discoverModule();
   const stories = await discover(projectRoot);
   if (dryRun) printDiscovered(stories, projectRoot);
   await renderAll(projectRoot, stories, only);
