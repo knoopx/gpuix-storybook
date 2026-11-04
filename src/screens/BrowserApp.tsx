@@ -4,6 +4,9 @@ import { resolve } from "node:path";
 import { render } from "@gpuix/react";
 import {
   AdwaitaProvider,
+  Divider,
+  DividerGroup,
+  DividerPanel,
   useAdwaita,
   ToastProvider,
   useToast,
@@ -18,6 +21,7 @@ import {
 import { copyStoryToClipboard } from "../lib/clipboard.ts";
 import { cloneArgs } from "../lib/args.ts";
 import { buildGroups, filterGroups, storyKey } from "../lib/groups.ts";
+import { SIDEBAR_MAX, SIDEBAR_MIN, SIDEBAR_W } from "../lib/layout.ts";
 import { HeaderBar } from "../components/HeaderBar.tsx";
 import { Sidebar } from "../components/Sidebar.tsx";
 import { Canvas } from "../components/Canvas.tsx";
@@ -100,28 +104,28 @@ function BrowserLayout({
       }}
     >
       <HeaderBar search={search} setSearch={setSearch} onCopy={onCopy} />
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "row",
-          flexGrow: 1,
-          flexShrink: 1,
-          minHeight: 0,
-        }}
+      <DividerGroup
+        orientation="horizontal"
+        style={{ flexGrow: 1, flexShrink: 1, minHeight: 0, minWidth: 0 }}
       >
-        <Sidebar
-          groups={groups}
-          selectedId={selectedId}
-          onSelect={select}
-          expanded={expanded}
-          toggleGroup={toggleGroup}
-          filtered={filtered}
-        />
-        <div
+        <DividerPanel
+          min={SIDEBAR_MIN}
+          max={SIDEBAR_MAX}
+          defaultSize={SIDEBAR_W}
+        >
+          <Sidebar
+            groups={groups}
+            selectedId={selectedId}
+            onSelect={select}
+            expanded={expanded}
+            toggleGroup={toggleGroup}
+            filtered={filtered}
+            width="100%"
+          />
+        </DividerPanel>
+        <Divider orientation="vertical" resize={0} />
+        <DividerPanel
           style={{
-            flexGrow: 1,
-            flexShrink: 1,
-            minWidth: 0,
             display: "flex",
             flexDirection: "column",
             minHeight: 0,
@@ -135,8 +139,8 @@ function BrowserLayout({
           {selected && Object.keys(args).length > 0 && (
             <PropertyPane def={selected} args={args} onChangeArg={changeArg} />
           )}
-        </div>
-      </div>
+        </DividerPanel>
+      </DividerGroup>
     </div>
   );
 }

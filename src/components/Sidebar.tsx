@@ -195,6 +195,7 @@ export function Sidebar({
   expanded,
   toggleGroup,
   filtered,
+  width = SIDEBAR_W,
 }: {
   groups: GroupNode[];
   selectedId: string | null;
@@ -202,6 +203,8 @@ export function Sidebar({
   expanded: Set<string>;
   toggleGroup: (key: string) => void;
   filtered: GroupNode[] | null;
+  /** The pane's width; pass "100%" inside a resizable `DividerPanel`. */
+  width?: number | string;
 }) {
   const t = useAdwaita();
   const { colors } = t;
@@ -261,7 +264,7 @@ export function Sidebar({
   return (
     <div
       style={{
-        width: SIDEBAR_W,
+        width,
         flexShrink: 0,
         display: "flex",
         flexDirection: "column",
