@@ -30,7 +30,6 @@ export default defineMeta({
   parameters: { width: 560, height: 300 },
 });
 
-
 export function Overview() {
   return (
     <StoryThemeProvider>
@@ -102,7 +101,6 @@ export function Overview() {
   );
 }
 
-
 export function Default() {
   return (
     <StoryThemeProvider>
@@ -110,7 +108,6 @@ export function Default() {
     </StoryThemeProvider>
   );
 }
-
 
 export function Provider() {
   return (

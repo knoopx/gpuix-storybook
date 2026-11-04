@@ -276,7 +276,6 @@ export function Sidebar({
         borderColor: color.border.default,
       }}
     >
-      {}
       <div
         style={{
           display: "flex",
@@ -294,7 +293,6 @@ export function Sidebar({
         </T>
       </div>
 
-      {}
       <div
         style={{
           flexGrow: 1,

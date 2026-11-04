@@ -4,9 +4,6 @@ import { HeaderBar } from "./HeaderBar.tsx";
 import { StoryThemeProvider } from "./StoryTheme.tsx";
 import { SIDEBAR_W } from "../lib/layout.ts";
 
-
-
-
 const themeDecorator = (fn: () => ReactNode): ReactNode => (
   <StoryThemeProvider>{fn()}</StoryThemeProvider>
 );
@@ -22,7 +19,6 @@ export default defineMeta({
   parameters: { width: SIDEBAR_W + 420, height: 120 },
 });
 
-
 export function Overview() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -32,11 +28,9 @@ export function Overview() {
   );
 }
 
-
 export function Default() {
   return <HeaderBar search="" setSearch={noopSet} onCopy={noopCopy} />;
 }
-
 
 export function WithQuery() {
   return <HeaderBar search="accordion" setSearch={noopSet} onCopy={noopCopy} />;

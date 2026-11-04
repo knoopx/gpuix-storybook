@@ -12,7 +12,6 @@ import {
   type ColorScheme,
   type AccentKey,
 } from "adwaita-gpuix";
-import type { DecoratorFunction } from "../csf.ts";
 
 export interface StoryTheme {
   scheme: ColorScheme;

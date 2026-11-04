@@ -243,9 +243,7 @@ export async function launchBrowser(projectRoot: string): Promise<void> {
     await loadPreviewDecorators(resolvePreviewModule(root)),
   );
 
-  console.log(
-    `storybook browser: ${stories.length} stories → ${projectRoot}`,
-  );
+  console.log(`storybook browser: ${stories.length} stories → ${projectRoot}`);
   render(
     <AdwaitaProvider scheme="nightsky">
       <ToastProvider>

@@ -6,7 +6,13 @@ import {
   type Parameters,
   type StoryDef,
 } from "storybook";
-import { AdwaitaProvider, Banner, Button, T, ToastProvider } from "adwaita-gpuix";
+import {
+  AdwaitaProvider,
+  Banner,
+  Button,
+  T,
+  ToastProvider,
+} from "adwaita-gpuix";
 import { BrowserApp } from "./BrowserApp.tsx";
 import { HeaderBar } from "../components/HeaderBar.tsx";
 import { StoryThemeProvider } from "../components/StoryTheme.tsx";
@@ -19,7 +25,6 @@ interface MakeDefOptions {
   argTypes?: Record<string, InputType>;
   parameters?: Parameters;
 }
-
 
 function makeDef(
   name: string,
@@ -184,9 +189,7 @@ const BROWSER_OVERVIEW = makeDef(
         <StoryThemeProvider>
           <BrowserApp
             stories={args?.stories ?? [BUTTON_DEFAULT, GREETING]}
-            previewDecoratorsByRoot={
-              args?.previewDecoratorsByRoot ?? new Map()
-            }
+            previewDecoratorsByRoot={args?.previewDecoratorsByRoot ?? new Map()}
             projectRoot={args?.projectRoot ?? "."}
           />
         </StoryThemeProvider>
@@ -205,9 +208,7 @@ const SAMPLES: StoryDef[] = [
   BROWSER_OVERVIEW,
 ];
 
-const NO_DECORATORS: Map<string, DecoratorFunction[]> = new Map([
-  [".", []],
-]);
+const NO_DECORATORS: Map<string, DecoratorFunction[]> = new Map([[".", []]]);
 
 export default defineMeta({
   title: "Screens/BrowserApp",
@@ -235,9 +236,7 @@ export function Overview({
         <StoryThemeProvider>
           <BrowserApp
             stories={stories ?? SAMPLES}
-            previewDecoratorsByRoot={
-              previewDecoratorsByRoot ?? NO_DECORATORS
-            }
+            previewDecoratorsByRoot={previewDecoratorsByRoot ?? NO_DECORATORS}
             projectRoot={projectRoot ?? "."}
           />
         </StoryThemeProvider>
@@ -259,9 +258,7 @@ export function EmptyLibrary({
         <StoryThemeProvider>
           <BrowserApp
             stories={[]}
-            previewDecoratorsByRoot={
-              previewDecoratorsByRoot ?? NO_DECORATORS
-            }
+            previewDecoratorsByRoot={previewDecoratorsByRoot ?? NO_DECORATORS}
             projectRoot={projectRoot ?? "."}
           />
         </StoryThemeProvider>

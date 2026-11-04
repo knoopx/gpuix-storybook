@@ -43,7 +43,6 @@ export default defineMeta({
   parameters: { width: 300, height: 480 },
 });
 
-
 export function Overview() {
   return (
     <Sidebar
@@ -56,7 +55,6 @@ export function Overview() {
     />
   );
 }
-
 
 export function Collapsed() {
   return (
@@ -71,7 +69,6 @@ export function Collapsed() {
   );
 }
 
-
 export function Filtered() {
   return (
     <Sidebar
@@ -85,7 +82,6 @@ export function Filtered() {
   );
 }
 
-
 export function EmptyLibrary() {
   return (
     <Sidebar
@@ -98,7 +94,6 @@ export function EmptyLibrary() {
     />
   );
 }
-
 
 export function FilteredEmpty() {
   return (

@@ -9,8 +9,16 @@ const stories: StoryDef[] = [
     "Adwaita/Button",
     "src/stories/Adwaita/Button.stories.tsx",
   ),
-  makeStoryDef("sizes", "Adwaita/Button", "src/stories/Adwaita/Button.stories.tsx"),
-  makeStoryDef("basic", "Adwaita/Alert", "src/stories/Adwaita/Alert.stories.tsx"),
+  makeStoryDef(
+    "sizes",
+    "Adwaita/Button",
+    "src/stories/Adwaita/Button.stories.tsx",
+  ),
+  makeStoryDef(
+    "basic",
+    "Adwaita/Alert",
+    "src/stories/Adwaita/Alert.stories.tsx",
+  ),
   makeStoryDef("empty", "Vcs/Branch", "src/stories/Vcs/Branch.stories.tsx"),
   makeStoryDef(
     "deep",

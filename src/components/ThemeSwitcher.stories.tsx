@@ -8,7 +8,6 @@ export default defineMeta({
   parameters: { width: 560, height: 280 },
 });
 
-
 export function Overview() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -25,7 +24,6 @@ export function Overview() {
   );
 }
 
-
 export function Default() {
   return (
     <StoryThemeProvider>
@@ -33,7 +31,6 @@ export function Default() {
     </StoryThemeProvider>
   );
 }
-
 
 export function TealAccent() {
   return (
